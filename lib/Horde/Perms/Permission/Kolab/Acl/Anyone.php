@@ -9,7 +9,6 @@
  * @package  Perms
  * @author   Gunnar Wrobel <wrobel@pardus.de>
  * @license  http://www.horde.org/licenses/lgpl21 LGPL 2.1
- * @link     http://pear.horde.org/index.php?package=Perms
  */
 
 /**
@@ -20,7 +19,6 @@
  * @package  Perms
  * @author   Gunnar Wrobel <wrobel@pardus.de>
  * @license  http://www.horde.org/licenses/lgpl21 LGPL 2.1
- * @link     http://pear.horde.org/index.php?package=Perms
  */
 class Horde_Perms_Permission_Kolab_Acl_Anyone
 extends Horde_Perms_Permission_Kolab_Acl
