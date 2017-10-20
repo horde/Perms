@@ -17,7 +17,7 @@
   <email>jan@horde.org</email>
   <active>yes</active>
  </lead>
- <date>2017-10-17</date>
+ <date>2017-10-20</date>
  <version>
   <release>2.1.8</release>
   <api>2.1.0</api>
@@ -340,7 +340,6 @@
       <file name="AllTests.php" role="test" />
       <file name="bootstrap.php" role="test" />
       <file name="KolabTest.php" role="test" />
-      <file name="phpunit.xml" role="test" />
      </dir> <!-- /test/Horde/Perms -->
     </dir> <!-- /test/Horde -->
    </dir> <!-- /test -->
@@ -526,7 +525,6 @@
    <install as="Horde/Perms/AllTests.php" name="test/Horde/Perms/AllTests.php" />
    <install as="Horde/Perms/bootstrap.php" name="test/Horde/Perms/bootstrap.php" />
    <install as="Horde/Perms/KolabTest.php" name="test/Horde/Perms/KolabTest.php" />
-   <install as="Horde/Perms/phpunit.xml" name="test/Horde/Perms/phpunit.xml" />
   </filelist>
  </phprelease>
  <changelog>
@@ -1000,7 +998,7 @@ Converted to package.xml 2.0 for pear.horde.org
    <stability>
     <release>stable</release>
     <api>stable</api></stability>
-   <date>2017-10-17</date>
+   <date>2017-10-20</date>
    <license uri="http://www.horde.org/licenses/lgpl21">LGPL-2.1</license>
    <notes>
 * 
