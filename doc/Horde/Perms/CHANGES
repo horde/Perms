@@ -1,0 +1,251 @@
+----------
+v2.1.8-git
+----------
+
+
+------
+v2.1.7
+------
+
+[jan] Mark PHP 7 as supported.
+
+
+------
+v2.1.6
+------
+
+[mjr] Use NULL instead of an empty string in the perms_parents field for root
+      permissions.
+
+
+------
+v2.1.5
+------
+
+[mjr] Fix issues when a value of 0 is a valid value for the permission (Bug
+      #14025).
+
+
+------
+v2.1.4
+------
+
+[jan] Fix issues with certain locales like Turkish.
+
+
+------
+v2.1.3
+------
+
+[jan] Support loading translations from Composer-installed package.
+[jan] Improve PSR-2 compatibility.
+
+
+------
+v2.1.2
+------
+
+[mms] Need to expire SQL cache for all sub-permissions when deleting a parent
+      permission.
+
+
+------
+v2.1.1
+------
+
+[jan] Fix unserialization notices in SQL driver.
+
+
+------
+v2.1.0
+------
+
+[jan] Add Horde_Perms_Permission_Kolab#getOwnerPermissions().
+
+
+------
+v2.0.3
+------
+
+[jan] Update French translation (Paul De Vlieger
+      <paul.de_vlieger@moniut.univ-bpclermont.fr>).
+
+
+------
+v2.0.2
+------
+
+[jan] Update Basque translation (Ibon Igartua <ibon.igartua@ehu.es>).
+[jan] Remove creator permission mapping from Kolab backend (Bug #11713).
+
+
+------
+v2.0.1
+------
+
+[jan] Update Dutch translation (Arjen de Korte <build+horde@de-korte.org>).
+
+
+------
+v2.0.0
+------
+
+First stable release for Horde 5.
+
+
+---------
+v2.0.0RC1
+---------
+
+[mms] Don't log permission not exists errors.
+
+
+-----------
+v2.0.0beta2
+-----------
+
+[jan] Remove optional dependency on Horde_DataTree.
+
+
+-----------
+v2.0.0beta1
+-----------
+
+First beta release for Horde 5.
+[jan] Remove DataTree driver.
+
+
+------------
+v2.0.0alpha1
+------------
+
+First alpha release for Horde 5.
+[jan] Use new Horde_Tree API.
+
+
+------
+v1.0.8
+------
+
+
+------
+v1.0.7
+------
+
+[jan] Update translations.
+
+
+------
+v1.0.6
+------
+
+[jan] Update Japanese translation (Hiromi Kimura <hiromi@tac.tsukuba.ac.jp>).
+
+
+------
+v1.0.5
+------
+
+[jan] Don't allow to create sub permissions of non-existant parent permissions
+      (Bug #10688).
+
+
+------
+v1.0.4
+------
+
+[gwr] Accept either d or t IMAP ACL as deletion right.
+
+
+------
+v1.0.3
+------
+
+[jan] Correctly aggregate all non-guest permissions.
+
+
+------
+v1.0.2
+------
+
+[jan] Update Latvian translation.
+
+
+------
+v1.0.1
+------
+
+[jan] Fix setting cache in DataTree driver.
+
+
+------
+v1.0.0
+------
+
+First stable release for Horde 4.
+
+
+---------
+v1.0.0RC2
+---------
+
+Second release candidate for Horde 4.
+
+
+---------
+v1.0.0RC1
+---------
+
+First release candidate for Horde 4.
+
+
+-----------
+v1.0.0beta1
+-----------
+
+Remove Horde-specific functionality.
+Restructure class layout.
+
+
+------------
+v1.0.0alpha1
+------------
+
+First alpha release for Horde 4.
+
+
+------
+v0.2.0
+------
+
+Eliminated horde/Core dependency.
+Initial Horde 4 package.
+
+
+------
+v0.1.0
+------
+
+Cache permissions with Horde_Cache (duck@obala.net).
+Fixed special permissions with more than one user or group (Bug #2058).
+Added a getParent() call instead of accessing the _datatree member directly.
+      (duck@obala.net, Request #6150).
+Added beta SQL Permissions driver (duck@obala.net, Request #6150).
+Automatically expand the node of the currently open permission.
+Only show Add Permission icons if there are sub-permissions to add.
+Make sure Horde_Array is available.
+Handle and display errors if they occur in the Perms backend.
+
+
+------
+v0.0.2
+------
+
+Converted to package.xml 2.0 for pear.horde.org
+
+
+------
+v0.0.1
+------
+
+Initial release as a PEAR package
