@@ -5,3 +5,39 @@ full: Permissions library
 description: The Perms package provides an interface to the Horde permissions system.
 list: dev
 type: library
+homepage: https://www.horde.org/libraries/Horde_Perms
+authors:
+  -
+    name: Chuck Hagenbuch
+    user: chuck
+    email: chuck@horde.org
+    active: true
+    role: lead
+  -
+    name: Jan Schneider
+    user: jan
+    email: jan@horde.org
+    active: true
+    role: lead
+version:
+  release: 2.1.8
+  api: 2.1.0
+state:
+  release: stable
+  api: stable
+license:
+  identifier: LGPL-2.1
+  uri: http://www.horde.org/licenses/lgpl21
+dependencies:
+  required:
+    php: ^5.3 || ^7
+    pear:
+      pear.horde.org/Horde_Db: ^2
+      pear.horde.org/Horde_Exception: ^2
+      pear.horde.org/Horde_Group: ^2
+      pear.horde.org/Horde_Util: ^2
+      pear.horde.org/Horde_Translation: ^2.2
+  optional:
+    pear:
+      pear.horde.org/Horde_Test: ^2.1
+      pear.horde.org/Horde_Tree: ^2
