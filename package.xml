@@ -17,7 +17,7 @@
   <email>jan@horde.org</email>
   <active>yes</active>
  </lead>
- <date>2016-03-08</date>
+ <date>2017-10-30</date>
  <version>
   <release>2.1.8</release>
   <api>2.1.0</api>
@@ -35,6 +35,7 @@
    <dir name="doc">
     <dir name="Horde">
      <dir name="Perms">
+      <file name="CHANGES" role="doc" />
       <file name="COPYING" role="doc" />
      </dir> <!-- /doc/Horde/Perms -->
     </dir> <!-- /doc/Horde -->
@@ -418,6 +419,7 @@
  </dependencies>
  <phprelease>
   <filelist>
+   <install as="CHANGES" name="doc/Horde/Perms/CHANGES" />
    <install as="COPYING" name="doc/Horde/Perms/COPYING" />
    <install as="Horde/Perms.php" name="lib/Horde/Perms.php" />
    <install as="Horde/Perms/Base.php" name="lib/Horde/Perms/Base.php" />
@@ -1006,7 +1008,7 @@
    <stability>
     <release>stable</release>
     <api>stable</api></stability>
-   <date>2016-03-08</date>
+   <date>2017-10-30</date>
    <license uri="http://www.horde.org/licenses/lgpl21">LGPL-2.1</license>
    <notes>
 * 
