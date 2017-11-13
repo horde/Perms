@@ -3,7 +3,7 @@
  <name>Horde_Perms</name>
  <channel>pear.horde.org</channel>
  <extends>Perms</extends>
- <summary>Horde Permissions System</summary>
+ <summary>Permissions library</summary>
  <description>The Perms package provides an interface to the Horde permissions system.</description>
  <lead>
   <name>Chuck Hagenbuch</name>
@@ -17,7 +17,7 @@
   <email>jan@horde.org</email>
   <active>yes</active>
  </lead>
- <date>2017-10-27</date>
+ <date>2017-11-11</date>
  <version>
   <release>2.1.8</release>
   <api>2.1.0</api>
@@ -1006,7 +1006,7 @@
    <stability>
     <release>stable</release>
     <api>stable</api></stability>
-   <date>2017-10-27</date>
+   <date>2017-11-11</date>
    <license uri="http://www.horde.org/licenses/lgpl21">LGPL-2.1</license>
    <notes>
 * 
