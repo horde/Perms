@@ -1,23 +1,23 @@
 {
     "name": "horde/perms",
-    "description": "Horde Permissions System",
+    "description": "Permissions library",
     "type": "library",
-    "homepage": "https://pear.horde.org",
+    "homepage": "https://www.horde.org/libraries/Horde_Perms",
     "license": "LGPL-2.1",
     "authors": [
-        {
-            "name": "Chuck Hagenbuch",
-            "email": "chuck@horde.org",
-            "role": "lead"
-        },
         {
             "name": "Jan Schneider",
             "email": "jan@horde.org",
             "role": "lead"
+        },
+        {
+            "name": "Chuck Hagenbuch",
+            "email": "chuck@horde.org",
+            "role": "lead"
         }
     ],
     "version": "2.1.8",
-    "time": "2016-03-08",
+    "time": "2017-11-14",
     "repositories": [
         {
             "type": "pear",
