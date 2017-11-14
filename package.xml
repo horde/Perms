@@ -348,7 +348,6 @@
       <file name="AllTests.php" role="test" />
       <file name="bootstrap.php" role="test" />
       <file name="KolabTest.php" role="test" />
-      <file name="phpunit.xml" role="test" />
      </dir> <!-- /test/Horde/Perms -->
     </dir> <!-- /test/Horde -->
    </dir> <!-- /test -->
@@ -534,8 +533,7 @@
    <install as="Horde/Perms/AllTests.php" name="test/Horde/Perms/AllTests.php" />
    <install as="Horde/Perms/bootstrap.php" name="test/Horde/Perms/bootstrap.php" />
    <install as="Horde/Perms/KolabTest.php" name="test/Horde/Perms/KolabTest.php" />
-   <install as="Horde/Perms/phpunit.xml" name="test/Horde/Perms/phpunit.xml" />
-  </filelist>
+   </filelist>
  </phprelease>
  <changelog>
   <release>
