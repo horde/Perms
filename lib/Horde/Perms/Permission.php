@@ -171,7 +171,7 @@ class Horde_Perms_Permission
 
                 /* If nothing to actually update finish with this case. */
                 if (is_null($perm_values)) {
-                    continue;
+                    break;
                 }
 
                 /* Loop through the names and update permissions for each. */
