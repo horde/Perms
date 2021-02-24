@@ -1,6 +1,6 @@
-------
-v2.1.8
-------
+------------
+v3.0.0alpha1
+------------
 
 [mjr] Avoid error on PHP 7.3 due to use of continue.
 
