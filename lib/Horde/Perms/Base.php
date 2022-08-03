@@ -247,7 +247,11 @@ abstract class Horde_Perms_Base
      */
     public function hasPermission($permission, $user, $perm, $creator = null)
     {
-        return (bool)($this->getPermissions($permission, $user, $creator) & $perm);
+        $perms = $this->getPermissions($permission, $user, $creator);
+        if (is_array($perms)) {
+            $perms = $perms ? 1 : 0;
+        }
+        return (bool)($perms & $perm);
     }
 
     /**
