@@ -53,6 +53,7 @@ class Horde_Perms_Permission_Kolab_AclIterator implements IteratorAggregate
         }
     }
 
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return new ArrayIterator($this->_acl);

@@ -25,11 +25,11 @@
  * @author     Gunnar Wrobel <wrobel@pardus.de>
  * @license    http://www.horde.org/licenses/lgpl21 LGPL 2.1
  */
-class Horde_Perms_KolabTest extends PHPUnit_Framework_TestCase
+class Horde_Perms_KolabTest extends Horde_Test_Case
 {
-    public function setUp()
+    public function setUp(): void
     {
-        $this->storage = $this->getMock('Horde_Perms_Permission_Kolab_Storage');
+        $this->storage = $this->getMockForAbstractClass('Horde_Perms_Permission_Kolab_Storage', array(), '', true, false);
         $this->storage->expects($this->once())
             ->method('getPermissionId')
             ->will($this->returnValue('test'));

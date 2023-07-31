@@ -67,6 +67,7 @@ class Horde_Perms_Permission_Kolab_ElementIterator implements IteratorAggregate
         }
     }
 
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return new ArrayIterator($this->_elements);
