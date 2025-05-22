@@ -181,7 +181,8 @@ class Horde_Perms_Permission
 
                     if ($type == 'matrix') {
                         foreach ($perm_types as $val => $label) {
-                            if ($name_values[$val] === '0' || !empty($name_values[$val])) {
+                            // Need to shield against $val key not set at all
+                            if (isset($name_values[$val]) && ($name_values[$val] === '0' || !empty($name_values[$val]))) {
                                 $this->setPerm($permId, $val, false);
                             } else {
                                 $this->unsetPerm($permId, $val, false);
