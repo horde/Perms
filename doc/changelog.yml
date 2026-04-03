@@ -1,4 +1,16 @@
 ---
+3.0.0-beta1:
+  api: 3.0.0-beta1
+  state:
+    release: beta
+    api: beta
+  date: 2026-04-03
+  license:
+    identifier: LGPL-2.1-only
+    uri: https://spdx.org/licenses/LGPL-2.1-only.html
+  notes: |-
+    fix: Provide a default message for Horde_Perms_Exception
+    test: Create a test suite for SQL Backend
 3.0.0-alpha5:
   api: 3.0.0-alpha1
   state:

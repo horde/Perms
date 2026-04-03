@@ -1,7 +1,7 @@
 {
     "name": "horde/perms",
     "description": "Permissions library",
-    "type": "library",
+    "type": "horde-library",
     "homepage": "https://www.horde.org/libraries/Horde_Perms",
     "license": "LGPL-2.1-only",
     "authors": [
@@ -16,9 +16,13 @@
             "role": "lead"
         }
     ],
-    "time": "2025-05-29",
+    "keywords": [
+        "permissions"
+    ],
+    "time": "2026-04-03",
     "repositories": [],
     "require": {
+        "horde/horde-installer-plugin": "dev-FRAMEWORK_6_0 || ^3 || ^2",
         "php": "^7.4 || ^8",
         "horde/db": "^3 || dev-FRAMEWORK_6_0",
         "horde/exception": "^3 || dev-FRAMEWORK_6_0",
@@ -28,7 +32,6 @@
     },
     "require-dev": {},
     "suggest": {
-        "horde/test": "^3 || dev-FRAMEWORK_6_0",
         "horde/tree": "^3 || dev-FRAMEWORK_6_0"
     },
     "autoload": {
@@ -42,7 +45,9 @@
         }
     },
     "config": {
-        "allow-plugins": {}
+        "allow-plugins": {
+            "horde/horde-installer-plugin": true
+        }
     },
     "extra": {
         "branch-alias": {
