@@ -14,4 +14,16 @@
 class Horde_Perms_Exception extends Horde_Exception_Wrapped
 {
     const NOT_EXIST = 1;
+
+    /**
+     * Constructor.
+     *
+     * @param mixed $message           The exception message, a PEAR_Error
+     *                                 object, or an Exception object.
+     * @param integer $code            A numeric error code.
+     */
+    public function __construct($message = 'Permission error', $code = 0)
+    {
+        parent::__construct($message, $code);
+    }
 }
