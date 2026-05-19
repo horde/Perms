@@ -72,6 +72,17 @@
     Original version string was 3.0.0alpha1
     [mjr] Avoid error on PHP 7.3 due to use of continue.
     
+3.0.0-RC1:
+  api: 3.0.0-RC1
+  state:
+    release: RC
+    api: RC
+  date: 2026-05-19
+  license:
+    identifier: LGPL-2.1-only
+    uri: https://spdx.org/licenses/LGPL-2.1-only.html
+  notes: |-
+    fix: More defensive code when trying to drop tables
 2.1.7:
   api: 2.1.0
   state:
