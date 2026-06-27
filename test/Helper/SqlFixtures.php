@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Horde\Perms\Test\Helper;
 
 use Horde_Perms;
+use InvalidArgumentException;
 
 /**
  * Test data fixtures for SQL integration tests.
@@ -81,38 +82,38 @@ class SqlFixtures
         switch ($dbType) {
             case 'sqlite':
                 return <<<SQL
-CREATE TABLE horde_perms (
-    perm_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    perm_name VARCHAR(255) UNIQUE NOT NULL,
-    perm_parents VARCHAR(255),
-    perm_data TEXT
-)
-SQL;
+                    CREATE TABLE horde_perms (
+                        perm_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        perm_name VARCHAR(255) UNIQUE NOT NULL,
+                        perm_parents VARCHAR(255),
+                        perm_data TEXT
+                    )
+                    SQL;
 
             case 'mysql':
                 return <<<SQL
-CREATE TABLE horde_perms (
-    perm_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    perm_name VARCHAR(255) NOT NULL,
-    perm_parents VARCHAR(255),
-    perm_data TEXT,
-    PRIMARY KEY (perm_id),
-    UNIQUE KEY perm_name_idx (perm_name)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-SQL;
+                    CREATE TABLE horde_perms (
+                        perm_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                        perm_name VARCHAR(255) NOT NULL,
+                        perm_parents VARCHAR(255),
+                        perm_data TEXT,
+                        PRIMARY KEY (perm_id),
+                        UNIQUE KEY perm_name_idx (perm_name)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    SQL;
 
             case 'pgsql':
                 return <<<SQL
-CREATE TABLE horde_perms (
-    perm_id SERIAL PRIMARY KEY,
-    perm_name VARCHAR(255) UNIQUE NOT NULL,
-    perm_parents VARCHAR(255),
-    perm_data TEXT
-)
-SQL;
+                    CREATE TABLE horde_perms (
+                        perm_id SERIAL PRIMARY KEY,
+                        perm_name VARCHAR(255) UNIQUE NOT NULL,
+                        perm_parents VARCHAR(255),
+                        perm_data TEXT
+                    )
+                    SQL;
 
             default:
-                throw new \InvalidArgumentException("Unsupported database type: {$dbType}");
+                throw new InvalidArgumentException("Unsupported database type: {$dbType}");
         }
     }
 

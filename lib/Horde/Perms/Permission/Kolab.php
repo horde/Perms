@@ -1,6 +1,7 @@
 <?php
+
 /**
- * Copyright 2006-2017 Horde LLC (http://www.horde.org/)
+ * Copyright 2006-2026 Horde LLC (http://www.horde.org/)
  *
  * See the enclosed file LICENSE for license information (LGPL). If you
  * did not receive this file, see http://www.horde.org/licenses/lgpl21.
@@ -24,7 +25,7 @@ class Horde_Perms_Permission_Kolab extends Horde_Perms_Permission
     /**
      * Kolab ACL speak for all permissions on a shared object.
      */
-    const ALL = 'lrid';
+    public const ALL = 'lrid';
 
     /**
      * The Kolab Folder these permissions belong to.
@@ -57,9 +58,10 @@ class Horde_Perms_Permission_Kolab extends Horde_Perms_Permission
      *
      * @param Horde_Group_Base $groups                      The group handler.
      */
-    public function __construct(Horde_Perms_Permission_Kolab_Storage $storage,
-                                Horde_Group_Base $groups)
-    {
+    public function __construct(
+        Horde_Perms_Permission_Kolab_Storage $storage,
+        Horde_Group_Base $groups
+    ) {
         parent::__construct(__CLASS__ . '::' . $storage->getPermissionId());
         $this->_storage = $storage;
         $this->_groups  = $groups;
@@ -100,7 +102,7 @@ class Horde_Perms_Permission_Kolab extends Horde_Perms_Permission
      */
     public function getCurrentPermissions()
     {
-        $data = array();
+        $data = [];
         /* @todo: Can we lazy load $this->data so that we restrict to using
          * MYRIGHTS only when that is all we need and use the full GETACL just
          * when required. */
@@ -125,7 +127,8 @@ class Horde_Perms_Permission_Kolab extends Horde_Perms_Permission
         $owner = $this->_storage->getOwner();
 
         $elements = new Horde_Perms_Permission_Kolab_ElementIterator(
-            $this->data, $this->_groups
+            $this->data,
+            $this->_groups
         );
         foreach ($elements as $element) {
             if ($owner == $element->getId()) {
@@ -137,7 +140,8 @@ class Horde_Perms_Permission_Kolab extends Horde_Perms_Permission
 
         // Delete ACLs that have been removed
         $elements = new Horde_Perms_Permission_Kolab_ElementIterator(
-            $current, $this->_groups
+            $current,
+            $this->_groups
         );
         foreach ($elements as $element) {
             if ($owner == $element->getId()) {

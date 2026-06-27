@@ -26,11 +26,7 @@ class Horde_Cache
         return false;
     }
 
-    public function set($key, $data, $lifetime = 0): void
-    {
-    }
+    public function set($key, $data, $lifetime = 0): void {}
 
-    public function expire($key): void
-    {
-    }
+    public function expire($key): void {}
 }

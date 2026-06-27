@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Maps a single Kolab_Storage ACL element to the Horde permission system.
  *
@@ -13,7 +14,7 @@
 /**
  * Maps a single Kolab_Storage ACL element to the Horde permission system.
  *
- * Copyright 2006-2017 Horde LLC (http://www.horde.org/)
+ * Copyright 2006-2026 Horde LLC (http://www.horde.org/)
  *
  * See the enclosed file LICENSE for license information (LGPL). If you
  * did not receive this file, see http://www.horde.org/licenses/lgpl21.
@@ -69,8 +70,8 @@ abstract class Horde_Perms_Permission_Kolab_Acl
         if (strpos($this->_acl, 'i') !== false) {
             $result |= Horde_Perms::EDIT;
         }
-        if (strpos($this->_acl, 'd') !== false ||
-            strpos($this->_acl, 't') !== false) {
+        if (strpos($this->_acl, 'd') !== false
+            || strpos($this->_acl, 't') !== false) {
             $result |= Horde_Perms::DELETE;
         }
         return $result;

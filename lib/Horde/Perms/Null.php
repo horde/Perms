@@ -1,8 +1,9 @@
 <?php
+
 /**
  * Horde_Perms_Null
  *
- * Copyright 2011-2017 Horde LLC (http://www.horde.org/)
+ * Copyright 2011-2026 Horde LLC (http://www.horde.org/)
  *
  * See the enclosed file LICENSE for license information (LGPL). If you
  * did not receive this file, see http://www.horde.org/licenses/lgpl21.
@@ -78,9 +79,10 @@ class Horde_Perms_Null extends Horde_Perms_Base
      *
      * @throws Horde_Perms_Exception
      */
-    public function removePermission(Horde_Perms_Permission $perm,
-                                     $force = false)
-    {
+    public function removePermission(
+        Horde_Perms_Permission $perm,
+        $force = false
+    ) {
         throw new Horde_Perms_Exception();
     }
 
@@ -130,6 +132,6 @@ class Horde_Perms_Null extends Horde_Perms_Base
      */
     public function getTree()
     {
-        return array();
+        return [];
     }
 }

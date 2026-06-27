@@ -1,8 +1,9 @@
 <?php
+
 /**
  * The Horde_Perms_Base class provides the Horde permissions system.
  *
- * Copyright 2001-2017 Horde LLC (http://www.horde.org/)
+ * Copyright 2001-2026 Horde LLC (http://www.horde.org/)
  *
  * See the enclosed file LICENSE for license information (LGPL). If you
  * did not receive this file, see http://www.horde.org/licenses/lgpl21.
@@ -40,7 +41,7 @@ abstract class Horde_Perms_Base
      *
      * @throws Horde_Perms_Exception
      */
-    public function __construct($params = array())
+    public function __construct($params = [])
     {
         if (isset($params['cache'])) {
             $this->_cache = $params['cache'];
@@ -123,8 +124,10 @@ abstract class Horde_Perms_Base
      *
      * @throws Horde_Perms_Exception
      */
-    abstract public function removePermission(Horde_Perms_Permission $perm,
-                                              $force = false);
+    abstract public function removePermission(
+        Horde_Perms_Permission $perm,
+        $force = false
+    );
 
     /**
      * Finds out what rights the given user has to this object.
@@ -145,8 +148,8 @@ abstract class Horde_Perms_Base
                 $permission = $this->getPermission($permission);
             } catch (Horde_Perms_Exception $e) {
                 /* Ignore not exists errors. */
-                if ($this->_logger &&
-                    ($e->getCode() != Horde_Perms_Exception::NOT_EXIST)) {
+                if ($this->_logger
+                    && ($e->getCode() != Horde_Perms_Exception::NOT_EXIST)) {
                     $this->_logger->log($e, 'DEBUG');
                 }
                 return false;
@@ -160,15 +163,15 @@ abstract class Horde_Perms_Base
 
         // Combine all other applicable permissions.
         $type = $permission->get('type');
-        $composite_perm = ($type == 'matrix') ? 0 : array();
+        $composite_perm = ($type == 'matrix') ? 0 : [];
 
         // If $creator was specified, check creator permissions.
         // If the user is the creator of the event see if there are creator
         // permissions.
-        if (!is_null($creator) &&
-            strlen($user) &&
-            ($user === $creator) &&
-            (($perms = $permission->getCreatorPermissions()) !== null)) {
+        if (!is_null($creator)
+            && strlen($user)
+            && ($user === $creator)
+            && (($perms = $permission->getCreatorPermissions()) !== null)) {
             if ($type == 'matrix') {
                 $composite_perm |= $perms;
             } else {
@@ -187,9 +190,9 @@ abstract class Horde_Perms_Base
         }
 
         // If no user permissions are found, try group permissions.
-        if (isset($permission->data['groups']) &&
-            is_array($permission->data['groups']) &&
-            count($permission->data['groups'])) {
+        if (isset($permission->data['groups'])
+            && is_array($permission->data['groups'])
+            && count($permission->data['groups'])) {
             $groups = $GLOBALS['injector']
                 ->getInstance('Horde_Group')
                 ->listGroups($user);
@@ -251,7 +254,7 @@ abstract class Horde_Perms_Base
         if (is_array($perms)) {
             $perms = $perms ? 1 : 0;
         }
-        return (bool)($perms & $perm);
+        return (bool) ($perms & $perm);
     }
 
     /**

@@ -1,4 +1,5 @@
 <?php
+
 class HordePermsUpgradeAutoIncrement extends Horde_Db_Migration_Base
 {
     public function up()
@@ -11,6 +12,6 @@ class HordePermsUpgradeAutoIncrement extends Horde_Db_Migration_Base
 
     public function down()
     {
-        $this->changeColumn('horde_perms', 'perm_id', 'integer', array('null' => false));
+        $this->changeColumn('horde_perms', 'perm_id', 'integer', ['null' => false]);
     }
 }

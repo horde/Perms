@@ -19,6 +19,7 @@ use Horde_Perms_Exception;
 use Horde_Perms_Permission_Sql;
 use Horde_Perms_Sql;
 use PHPUnit\Framework\Attributes\CoversClass;
+use Horde_Db_Exception;
 
 /**
  * Integration tests for Horde_Perms_Sql with PostgreSQL backend.
@@ -43,7 +44,7 @@ class SqlPgsqlTest extends SqlTestBase
         // Skip if PostgreSQL is not available
         try {
             parent::setUp();
-        } catch (\Horde_Db_Exception $e) {
+        } catch (Horde_Db_Exception $e) {
             $this->markTestSkipped('PostgreSQL database not available: ' . $e->getMessage());
         }
     }

@@ -1,8 +1,9 @@
 <?php
+
 /**
  * Instance of a single permissioning object.
  *
- * Copyright 2009-2017 Horde LLC (http://www.horde.org/)
+ * Copyright 2009-2026 Horde LLC (http://www.horde.org/)
  *
  * See the enclosed file LICENSE for license information (LGPL). If you
  * did not receive this file, see http://www.horde.org/licenses/lgpl21.
@@ -40,9 +41,12 @@ class Horde_Perms_Permission
      * @param array $params          A hash with any parameters that the
      *                               permission type needs.
      */
-    public function __construct($name, $cacheVersion = null, $type = 'matrix',
-                                $params = null)
-    {
+    public function __construct(
+        $name,
+        $cacheVersion = null,
+        $type = 'matrix',
+        $params = null
+    ) {
         $this->setName($name);
         $this->setCacheVersion($cacheVersion);
         $this->data['type'] = $type;
@@ -134,67 +138,67 @@ class Horde_Perms_Permission
 
         foreach ($perms as $perm_class => $perm_values) {
             switch ($perm_class) {
-            case 'default':
-            case 'guest':
-            case 'creator':
-                if ($type == 'matrix') {
-                    foreach ($perm_types as $val => $label) {
-                        if (!empty($perm_values[$val])) {
-                            $this->setPerm($perm_class, $val, false);
-                        } else {
-                            $this->unsetPerm($perm_class, $val, false);
-                        }
-                    }
-                } elseif (!empty($perm_values)) {
-                    $this->setPerm($perm_class, $perm_values, false);
-                } else {
-                    $this->unsetPerm($perm_class, null, false);
-                }
-                break;
-
-            case 'u':
-            case 'g':
-                $permId = array('class' => $perm_class == 'u' ? 'users' : 'groups');
-                /* Figure out what names that are stored in this permission
-                 * class have not been submitted for an update, ie. have been
-                 * removed entirely. */
-                $current_names = isset($this->data[$permId['class']])
-                    ? array_keys($this->data[$permId['class']])
-                    : array();
-                $updated_names = array_keys($perm_values);
-                $removed_names = array_diff($current_names, $updated_names);
-
-                /* Remove any names that have been completely unset. */
-                foreach ($removed_names as $name) {
-                    unset($this->data[$permId['class']][$name]);
-                }
-
-                /* If nothing to actually update finish with this case. */
-                if (is_null($perm_values)) {
-                    break;
-                }
-
-                /* Loop through the names and update permissions for each. */
-                // @todo for Horde 6 - allow integer 0 values?
-                foreach ($perm_values as $name => $name_values) {
-                    $permId['name'] = $name;
-
+                case 'default':
+                case 'guest':
+                case 'creator':
                     if ($type == 'matrix') {
                         foreach ($perm_types as $val => $label) {
-                            // Need to shield against $val key not set at all
-                            if (isset($name_values[$val]) && ($name_values[$val] === '0' || !empty($name_values[$val]))) {
-                                $this->setPerm($permId, $val, false);
+                            if (!empty($perm_values[$val])) {
+                                $this->setPerm($perm_class, $val, false);
                             } else {
-                                $this->unsetPerm($permId, $val, false);
+                                $this->unsetPerm($perm_class, $val, false);
                             }
                         }
-                    } elseif ($name_values === '0' || !empty($name_values)) {
-                        $this->setPerm($permId, $name_values, false);
+                    } elseif (!empty($perm_values)) {
+                        $this->setPerm($perm_class, $perm_values, false);
                     } else {
-                        $this->unsetPerm($permId, null, false);
+                        $this->unsetPerm($perm_class, null, false);
                     }
-                }
-                break;
+                    break;
+
+                case 'u':
+                case 'g':
+                    $permId = ['class' => $perm_class == 'u' ? 'users' : 'groups'];
+                    /* Figure out what names that are stored in this permission
+                     * class have not been submitted for an update, ie. have been
+                     * removed entirely. */
+                    $current_names = isset($this->data[$permId['class']])
+                        ? array_keys($this->data[$permId['class']])
+                        : [];
+                    $updated_names = array_keys($perm_values);
+                    $removed_names = array_diff($current_names, $updated_names);
+
+                    /* Remove any names that have been completely unset. */
+                    foreach ($removed_names as $name) {
+                        unset($this->data[$permId['class']][$name]);
+                    }
+
+                    /* If nothing to actually update finish with this case. */
+                    if (is_null($perm_values)) {
+                        break;
+                    }
+
+                    /* Loop through the names and update permissions for each. */
+                    // @todo for Horde 6 - allow integer 0 values?
+                    foreach ($perm_values as $name => $name_values) {
+                        $permId['name'] = $name;
+
+                        if ($type == 'matrix') {
+                            foreach ($perm_types as $val => $label) {
+                                // Need to shield against $val key not set at all
+                                if (isset($name_values[$val]) && ($name_values[$val] === '0' || !empty($name_values[$val]))) {
+                                    $this->setPerm($permId, $val, false);
+                                } else {
+                                    $this->unsetPerm($permId, $val, false);
+                                }
+                            }
+                        } elseif ($name_values === '0' || !empty($name_values)) {
+                            $this->setPerm($permId, $name_values, false);
+                        } else {
+                            $this->unsetPerm($permId, null, false);
+                        }
+                    }
+                    break;
             }
         }
     }
@@ -208,15 +212,15 @@ class Horde_Perms_Permission
             if (empty($permId['name'])) {
                 return;
             }
-            if ($this->get('type') == 'matrix' &&
-                isset($this->data[$permId['class']][$permId['name']])) {
+            if ($this->get('type') == 'matrix'
+                && isset($this->data[$permId['class']][$permId['name']])) {
                 $this->data[$permId['class']][$permId['name']] |= $permission;
             } else {
                 $this->data[$permId['class']][$permId['name']] = $permission;
             }
         } else {
-            if ($this->get('type') == 'matrix' &&
-                isset($this->data[$permId])) {
+            if ($this->get('type') == 'matrix'
+                && isset($this->data[$permId])) {
                 $this->data[$permId] |= $permission;
             } else {
                 $this->data[$permId] = $permission;
@@ -282,8 +286,8 @@ class Horde_Perms_Permission
             return;
         }
 
-        if ($this->get('type') == 'matrix' &&
-            isset($this->data['users'][$user])) {
+        if ($this->get('type') == 'matrix'
+            && isset($this->data['users'][$user])) {
             $this->data['users'][$user] |= $permission;
         } else {
             $this->data['users'][$user] = $permission;
@@ -303,8 +307,8 @@ class Horde_Perms_Permission
      */
     public function addGuestPermission($permission, $update = true)
     {
-        if ($this->get('type') == 'matrix' &&
-            isset($this->data['guest'])) {
+        if ($this->get('type') == 'matrix'
+            && isset($this->data['guest'])) {
             $this->data['guest'] |= $permission;
         } else {
             $this->data['guest'] = $permission;
@@ -324,8 +328,8 @@ class Horde_Perms_Permission
      */
     public function addCreatorPermission($permission, $update = true)
     {
-        if ($this->get('type') == 'matrix' &&
-            isset($this->data['creator'])) {
+        if ($this->get('type') == 'matrix'
+            && isset($this->data['creator'])) {
             $this->data['creator'] |= $permission;
         } else {
             $this->data['creator'] = $permission;
@@ -345,8 +349,8 @@ class Horde_Perms_Permission
      */
     public function addDefaultPermission($permission, $update = true)
     {
-        if ($this->get('type') == 'matrix' &&
-            isset($this->data['default'])) {
+        if ($this->get('type') == 'matrix'
+            && isset($this->data['default'])) {
             $this->data['default'] |= $permission;
         } else {
             $this->data['default'] = $permission;
@@ -372,8 +376,8 @@ class Horde_Perms_Permission
             return;
         }
 
-        if ($this->get('type') == 'matrix' &&
-            isset($this->data['groups'][$groupId])) {
+        if ($this->get('type') == 'matrix'
+            && isset($this->data['groups'][$groupId])) {
             $this->data['groups'][$groupId] |= $permission;
         } else {
             $this->data['groups'][$groupId] = $permission;
@@ -394,11 +398,13 @@ class Horde_Perms_Permission
      * @param boolean $update      Whether to automatically update the
      *                             backend.
      */
-    public function removeUserPermission($user = null, $permission = null,
-                                         $update = true)
-    {
+    public function removeUserPermission(
+        $user = null,
+        $permission = null,
+        $update = true
+    ) {
         if (is_null($user)) {
-            $this->data['users'] = array();
+            $this->data['users'] = [];
         } else {
             if (!isset($this->data['users'][$user])) {
                 return;
@@ -504,11 +510,13 @@ class Horde_Perms_Permission
      * @param boolean $update      Whether to automatically update the
      *                             backend.
      */
-    public function removeGroupPermission($groupId = null, $permission = null,
-                                          $update = true)
-    {
+    public function removeGroupPermission(
+        $groupId = null,
+        $permission = null,
+        $update = true
+    ) {
         if (is_null($groupId)) {
-            $this->data['groups'] = array();
+            $this->data['groups'] = [];
         } else {
             if (!isset($this->data['groups'][$groupId])) {
                 return;
@@ -540,12 +548,12 @@ class Horde_Perms_Permission
     public function getUserPermissions($perm = null)
     {
         if (!isset($this->data['users']) || !is_array($this->data['users'])) {
-            return array();
+            return [];
         } elseif (!$perm) {
             return $this->data['users'];
         }
 
-        $users = array();
+        $users = [];
         foreach ($this->data['users'] as $user => $uperm) {
             if ($uperm & $perm) {
                 $users[$user] = $uperm;
@@ -601,14 +609,14 @@ class Horde_Perms_Permission
      */
     public function getGroupPermissions($perm = null)
     {
-        if (!isset($this->data['groups']) ||
-            !is_array($this->data['groups'])) {
-            return array();
+        if (!isset($this->data['groups'])
+            || !is_array($this->data['groups'])) {
+            return [];
         } elseif (!$perm) {
             return $this->data['groups'];
         }
 
-        $groups = array();
+        $groups = [];
         foreach ($this->data['groups'] as $group => $gperm) {
             if ($gperm & $perm) {
                 $groups[$group] = $gperm;
@@ -621,8 +629,6 @@ class Horde_Perms_Permission
     /**
      * TODO
      */
-    public function save()
-    {
-    }
+    public function save() {}
 
 }

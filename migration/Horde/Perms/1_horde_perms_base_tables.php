@@ -1,16 +1,17 @@
 <?php
+
 class HordePermsBaseTables extends Horde_Db_Migration_Base
 {
     public function up()
     {
         if (!in_array('horde_perms', $this->tables())) {
-            $t = $this->createTable('horde_perms', array('autoincrementKey' => array('perm_id')));
-            $t->column('perm_id', 'integer', array('null' => false));
-            $t->column('perm_name', 'string', array('limit' => 255, 'null' => false));
-            $t->column('perm_parents', 'string', array('limit' => 255, 'null' => false));
+            $t = $this->createTable('horde_perms', ['autoincrementKey' => ['perm_id']]);
+            $t->column('perm_id', 'integer', ['null' => false]);
+            $t->column('perm_name', 'string', ['limit' => 255, 'null' => false]);
+            $t->column('perm_parents', 'string', ['limit' => 255, 'null' => false]);
             $t->column('perm_data', 'text');
             $t->end();
-            $this->addIndex('horde_perms', array('perm_name'), array('unique' => true));
+            $this->addIndex('horde_perms', ['perm_name'], ['unique' => true]);
         }
     }
 

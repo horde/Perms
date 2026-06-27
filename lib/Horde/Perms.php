@@ -1,8 +1,9 @@
 <?php
+
 /**
  * The Horde_Perms package provides the Horde permissions system.
  *
- * Copyright 2001-2017 Horde LLC (http://www.horde.org/)
+ * Copyright 2001-2026 Horde LLC (http://www.horde.org/)
  *
  * See the enclosed file LICENSE for license information (LGPL). If you
  * did not receive this file, see http://www.horde.org/licenses/lgpl21.
@@ -17,23 +18,23 @@ class Horde_Perms
     /**
      * Existence of object is known - object is shown to user.
      */
-    const SHOW = 2;
+    public const SHOW = 2;
 
     /**
      * Contents of the object can be read.
      */
-    const READ = 4;
+    public const READ = 4;
 
     /**
      * Contents of the object can be edited.
      */
 
-    const EDIT = 8;
+    public const EDIT = 8;
 
     /**
      * The object can be deleted.
      */
-    const DELETE = 16;
+    public const DELETE = 16;
 
     /**
      * A bitmask of all possible permission values.
@@ -41,19 +42,19 @@ class Horde_Perms
      * Useful for removeXxxPermission(), unsetPerm(), etc.
      * 30 = SHOW | READ | EDIT | DELETE
      */
-    const ALL = 30;
+    public const ALL = 30;
 
     /**
      * The root permission.
      */
-    const ROOT = -1;
+    public const ROOT = -1;
 
     /**
      * Cache for integerToArray().
      *
      * @var array
      */
-    protected static $_itaCache = array();
+    protected static $_itaCache = [];
 
     /**
      * Returns an hash of the available permissions.
@@ -62,12 +63,12 @@ class Horde_Perms
      */
     public static function getPermsArray()
     {
-        return array(
+        return [
             self::SHOW => Horde_Perms_Translation::t("Show"),
             self::READ => Horde_Perms_Translation::t("Read"),
             self::EDIT => Horde_Perms_Translation::t("Edit"),
-            self::DELETE => Horde_Perms_Translation::t("Delete")
-        );
+            self::DELETE => Horde_Perms_Translation::t("Delete"),
+        ];
     }
 
     /**
@@ -84,7 +85,7 @@ class Horde_Perms
             return self::$_itaCache[$int];
         }
 
-        self::$_itaCache[$int] = array();
+        self::$_itaCache[$int] = [];
 
         /* Get the available perms array. */
         $perms = self::getPermsArray();

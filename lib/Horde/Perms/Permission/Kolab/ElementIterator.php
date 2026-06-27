@@ -1,6 +1,7 @@
 <?php
+
 /**
- * Copyright 2006-2017 Horde LLC (http://www.horde.org/)
+ * Copyright 2006-2026 Horde LLC (http://www.horde.org/)
  *
  * See the enclosed file LICENSE for license information (LGPL). If you
  * did not receive this file, see http://www.horde.org/licenses/lgpl21.
@@ -26,7 +27,7 @@ class Horde_Perms_Permission_Kolab_ElementIterator implements IteratorAggregate
      *
      * @var array
      */
-    protected $_elements = array();
+    protected $_elements = [];
 
     /**
      * Constructor.
@@ -39,30 +40,33 @@ class Horde_Perms_Permission_Kolab_ElementIterator implements IteratorAggregate
     {
         foreach ($permissions as $user => $user_perms) {
             switch ($user) {
-            case 'default':
-                $this->_elements[] = new Horde_Perms_Permission_Kolab_Element_Default(
-                    $user_perms
-                );
-                break;
-            case 'guest':
-                $this->_elements[] = new Horde_Perms_Permission_Kolab_Element_Guest(
-                    $user_perms
-                );
-                break;
-            case 'groups':
-                foreach ($user_perms as $user_entry => $perms) {
-                    $this->_elements[] = new Horde_Perms_Permission_Kolab_Element_Group(
-                        $perms, $user_entry, $groups
+                case 'default':
+                    $this->_elements[] = new Horde_Perms_Permission_Kolab_Element_Default(
+                        $user_perms
                     );
-                }
-                break;
-            case 'users':
-                foreach ($user_perms as $user_entry => $perms) {
-                    $this->_elements[] = new Horde_Perms_Permission_Kolab_Element_User(
-                        $perms, $user_entry
+                    break;
+                case 'guest':
+                    $this->_elements[] = new Horde_Perms_Permission_Kolab_Element_Guest(
+                        $user_perms
                     );
-                }
-                break;
+                    break;
+                case 'groups':
+                    foreach ($user_perms as $user_entry => $perms) {
+                        $this->_elements[] = new Horde_Perms_Permission_Kolab_Element_Group(
+                            $perms,
+                            $user_entry,
+                            $groups
+                        );
+                    }
+                    break;
+                case 'users':
+                    foreach ($user_perms as $user_entry => $perms) {
+                        $this->_elements[] = new Horde_Perms_Permission_Kolab_Element_User(
+                            $perms,
+                            $user_entry
+                        );
+                    }
+                    break;
             }
         }
     }

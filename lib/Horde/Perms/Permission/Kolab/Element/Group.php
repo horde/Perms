@@ -1,6 +1,7 @@
 <?php
+
 /**
- * Copyright 2006-2017 Horde LLC (http://www.horde.org/)
+ * Copyright 2006-2026 Horde LLC (http://www.horde.org/)
  *
  * See the enclosed file LICENSE for license information (LGPL). If you
  * did not receive this file, see http://www.horde.org/licenses/lgpl21.
@@ -19,8 +20,7 @@
  * @author   Gunnar Wrobel <wrobel@pardus.de>
  * @license  http://www.horde.org/licenses/lgpl21 LGPL 2.1
  */
-class Horde_Perms_Permission_Kolab_Element_Group
-extends Horde_Perms_Permission_Kolab_Element
+class Horde_Perms_Permission_Kolab_Element_Group extends Horde_Perms_Permission_Kolab_Element
 {
     /**
      * The Horde group id.

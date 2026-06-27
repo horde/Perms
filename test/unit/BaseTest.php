@@ -171,7 +171,7 @@ class BaseTest extends TestCase
         $groupMock->method('listGroups')
             ->willReturn(['admins' => 'Administrators']);
 
-        $injectorMock = new class($groupMock) {
+        $injectorMock = new class ($groupMock) {
             private $groupMock;
             public function __construct($groupMock)
             {
@@ -204,7 +204,7 @@ class BaseTest extends TestCase
                 'editors' => 'Editors',
             ]);
 
-        $injectorMock = new class($groupMock) {
+        $injectorMock = new class ($groupMock) {
             private $groupMock;
             public function __construct($groupMock)
             {
@@ -244,7 +244,7 @@ class BaseTest extends TestCase
         $testPerm = new Horde_Perms_Permission('test');
         $testPerm->addUserPermission('alice', Horde_Perms::READ, false);
 
-        $perms = new class($testPerm) extends Horde_Perms_Base {
+        $perms = new class ($testPerm) extends Horde_Perms_Base {
             private $testPerm;
 
             public function __construct($testPerm)
