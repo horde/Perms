@@ -37,6 +37,7 @@ dependencies:
       horde/group: ^3
       horde/util: ^3
       horde/translation: ^3
+      psr/log: ^3
   optional:
     composer:
       horde/tree: ^3
