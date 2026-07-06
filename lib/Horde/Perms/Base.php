@@ -12,7 +12,8 @@
  * @author   Jan Schneider <jan@horde.org>
  * @category Horde
  * @package  Perms
- * @todo     Remove $GLOBALS references here and in Sql backend for Horde 6.
+ * @todo     Remove $GLOBALS['injector'] fallback in _getGroupsForUser()
+ *           for Horde 7 once all instantiation sites pass 'group' explicitly.
  */
 abstract class Horde_Perms_Base
 {
@@ -24,9 +25,26 @@ abstract class Horde_Perms_Base
     protected $_cache;
 
     /**
+     * Group backend.
+     *
+     * Preferred injection point. Pass 'group' in the constructor $params.
+     * When null the resolver falls back to
+     * $GLOBALS['injector']->getInstance('Horde_Group'), and finally to an
+     * empty groups list if that also fails. See _getGroupsForUser().
+     *
+     * @var Horde_Group|null
+     */
+    protected $_group;
+
+    /**
      * Logger.
      *
-     * @var Horde_Log_Logger
+     * Both PSR-3 and the legacy Horde_Log_Logger shape are accepted. The
+     * single call site in this class branches on the concrete type. This
+     * is a pre-step to a broader PSR-4 overhaul; once the legacy backend is
+     * gone the union collapses to Psr\Log\LoggerInterface.
+     *
+     * @var Psr\Log\LoggerInterface|Horde_Log_Logger|null
      */
     protected $_logger;
 
@@ -36,7 +54,15 @@ abstract class Horde_Perms_Base
      * @param array $params  Configuration parameters:
      * <pre>
      * 'cache' - (Horde_Cache) The object to use to cache perms.
-     * 'logger' - (Horde_Log_Logger) A logger object.
+     * 'group' - (Horde_Group) A group backend used to resolve which groups
+     *           a user belongs to during permission evaluation. Optional;
+     *           when omitted, resolution falls back to the legacy
+     *           $GLOBALS['injector']->getInstance('Horde_Group') lookup,
+     *           and finally to "user has no groups" if the injector is
+     *           unavailable.
+     * 'logger' - (Psr\Log\LoggerInterface|Horde_Log_Logger) A logger object.
+     *            Both PSR-3 and the legacy Horde_Log_Logger shape are
+     *            accepted; the call site branches on the concrete type.
      * </pre>
      *
      * @throws Horde_Perms_Exception
@@ -45,6 +71,10 @@ abstract class Horde_Perms_Base
     {
         if (isset($params['cache'])) {
             $this->_cache = $params['cache'];
+        }
+
+        if (isset($params['group'])) {
+            $this->_group = $params['group'];
         }
 
         if (isset($params['logger'])) {
@@ -132,6 +162,18 @@ abstract class Horde_Perms_Base
     /**
      * Finds out what rights the given user has to this object.
      *
+     * Grants and denies compose in a specificity-ordered cascade from broad
+     * to narrow: default (ALL AUTHENTICATED), then group membership, then
+     * creator, then user. At each step grants collect onto the running
+     * effective mask and denies subtract from it. A more specific grant
+     * can restore a bit that a less specific deny removed. A more specific
+     * deny can remove a bit that a less specific grant added.
+     *
+     * Guest users are resolved through a disjunct branch. The deny cascade
+     * only applies to authenticated users. Non-matrix, non-boolean types
+     * (numeric permissions) do not support denies at the data layer, so
+     * their resolution is grant-only and keeps its original array shape.
+     *
      * @param mixed $permission  The full permission name of the object to
      *                           check the permissions of, or the
      *                           Horde_Permissions object.
@@ -140,6 +182,11 @@ abstract class Horde_Perms_Base
      *
      * @return mixed  A bitmask of permissions the user has, false if there
      *                are none.
+     * @todo For a future major version, collapse the return type. Matrix
+     *       should return int (with 0 meaning "no bits"). Non-matrix should
+     *       return [] instead of false. Callers currently juggle int|false
+     *       because zero-mask outcomes were unreachable under the old
+     *       grant-only OR-fold. The deny cascade makes them reachable.
      */
     public function getPermissions($permission, $user, $creator = null)
     {
@@ -150,80 +197,263 @@ abstract class Horde_Perms_Base
                 /* Ignore not exists errors. */
                 if ($this->_logger
                     && ($e->getCode() != Horde_Perms_Exception::NOT_EXIST)) {
-                    $this->_logger->log($e, 'DEBUG');
+                    if ($this->_logger instanceof \Psr\Log\LoggerInterface) {
+                        // PSR-3 idiomatic: message-first, exception in
+                        // structured context so handlers can inspect it.
+                        $this->_logger->debug(
+                            $e->getMessage(),
+                            ['exception' => $e]
+                        );
+                    } else {
+                        // Legacy Horde_Log_Logger. Its log() reads $level as
+                        // the integer level constant, not the level name —
+                        // passing the string 'DEBUG' would raise
+                        // "Bad log level" here. Use the constant.
+                        $this->_logger->log((string) $e, Horde_Log::DEBUG);
+                    }
                 }
                 return false;
             }
         }
 
-        // If this is a guest user, only check guest permissions.
+        // Guest branch is disjunct. No cascade, no denies.
         if (empty($user)) {
             return $permission->getGuestPermissions();
         }
 
-        // Combine all other applicable permissions.
         $type = $permission->get('type');
-        $composite_perm = ($type == 'matrix') ? 0 : [];
 
-        // If $creator was specified, check creator permissions.
-        // If the user is the creator of the event see if there are creator
-        // permissions.
+        if ($type == 'matrix') {
+            return $this->_composeMatrix($permission, $user, $creator);
+        }
+        if ($type == 'boolean') {
+            return $this->_composeBoolean($permission, $user, $creator);
+        }
+        return $this->_composeOther($permission, $user, $creator);
+    }
+
+    /**
+     * Matrix-type resolution. Specificity cascade with bitmask math.
+     *
+     * At each scope the grant OR-folds into $effective and the deny
+     * AND-NOTs out of it, in the order default -> group -> creator -> user.
+     * That ordering means a user-scope grant can restore a bit denied at
+     * group scope, and a user-scope deny beats every less specific grant.
+     *
+     * Groups: intra-scope grants collect across all of the user's groups
+     * first, then the intra-scope denies subtract. So if Alice is in
+     * "sales" (grants READ) and "contractors" (denies READ) the group
+     * step's contribution is zero. Only a user-scope grant can restore it.
+     *
+     * @return int|false  A bitmask, or false when zero bits remain.
+     *                    @todo see class-level note on collapsing this.
+     */
+    private function _composeMatrix($permission, $user, $creator)
+    {
+        $effective = 0;
+
+        // Default (ALL AUTHENTICATED). Baseline for every logged-in user.
+        if (($g = $permission->getDefaultPermissions()) !== null) {
+            $effective |= $g;
+        }
+        if (($d = $permission->getDefaultDenies()) !== null) {
+            $effective &= ~$d;
+        }
+
+        // Group. Collect across every group the user is a member of.
+        // _getGroupsForUser() returns [] when no backend is reachable,
+        // so no explicit "skip" branch is needed here.
+        $groups = $this->_getGroupsForUser($user);
+        $groupGrants = 0;
+        foreach ($permission->getGroupPermissions() as $g => $p) {
+            if (isset($groups[$g])) {
+                $groupGrants |= $p;
+            }
+        }
+        $groupDenies = 0;
+        foreach ($permission->getGroupDenies() as $g => $p) {
+            if (isset($groups[$g])) {
+                $groupDenies |= $p;
+            }
+        }
+        $effective = ($effective | $groupGrants) & ~$groupDenies;
+
+        // Creator. Only when the effective user IS the creator.
+        if (!is_null($creator) && strlen($user) && ($user === $creator)) {
+            if (($g = $permission->getCreatorPermissions()) !== null) {
+                $effective |= $g;
+            }
+            if (($d = $permission->getCreatorDenies()) !== null) {
+                $effective &= ~$d;
+            }
+        }
+
+        // User. The most specific scope, final override.
+        $userGrants = $permission->getUserPermissions();
+        if (isset($userGrants[$user])) {
+            $effective |= $userGrants[$user];
+        }
+        $userDenies = $permission->getUserDenies();
+        if (isset($userDenies[$user])) {
+            $effective &= ~$userDenies[$user];
+        }
+
+        // @todo collapse to plain "return $effective" once the return-type
+        //       cleanup lands. Keep the false compat for now.
+        return $effective ?: false;
+    }
+
+    /**
+     * Boolean-type resolution. Same specificity cascade, no bitmask math.
+     *
+     * At each scope: a truthy grant sets $granted to true. A truthy deny
+     * sets it back to false. Later (more specific) scopes override.
+     *
+     * @return bool  Whether the user is granted this boolean permission.
+     */
+    private function _composeBoolean($permission, $user, $creator)
+    {
+        $granted = false;
+
+        if (!empty($permission->data['default'])) {
+            $granted = true;
+        }
+        if (!empty($permission->data['default_deny'])) {
+            $granted = false;
+        }
+
+        $groups = $this->_getGroupsForUser($user);
+        $groupGrant = false;
+        $groupDeny = false;
+        if (isset($permission->data['groups']) && is_array($permission->data['groups'])) {
+            foreach ($permission->data['groups'] as $g => $p) {
+                if (isset($groups[$g]) && !empty($p)) {
+                    $groupGrant = true;
+                }
+            }
+        }
+        if (isset($permission->data['groups_deny']) && is_array($permission->data['groups_deny'])) {
+            foreach ($permission->data['groups_deny'] as $g => $p) {
+                if (isset($groups[$g]) && !empty($p)) {
+                    $groupDeny = true;
+                }
+            }
+        }
+        if ($groupGrant) {
+            $granted = true;
+        }
+        if ($groupDeny) {
+            $granted = false;
+        }
+
+        if (!is_null($creator) && strlen($user) && ($user === $creator)) {
+            if (!empty($permission->data['creator'])) {
+                $granted = true;
+            }
+            if (!empty($permission->data['creator_deny'])) {
+                $granted = false;
+            }
+        }
+
+        $userGrants = $permission->getUserPermissions();
+        if (!empty($userGrants[$user])) {
+            $granted = true;
+        }
+        $userDenies = $permission->getUserDenies();
+        if (!empty($userDenies[$user])) {
+            $granted = false;
+        }
+
+        return $granted;
+    }
+
+    /**
+     * Non-matrix, non-boolean resolution. Grant-only, original array shape.
+     *
+     * Preserved verbatim from the pre-cascade algorithm: collect every
+     * matching scope's value into a list, in the historic order
+     * creator -> user -> group -> default. Callers of hasPermission() only
+     * see whether the list is empty.
+     *
+     * The deny data layer refuses to write denies on these types (raises
+     * \Horde\Exception\HordeLogicException), so no deny data can exist here
+     * and the pre-cascade behavior is unchanged.
+     *
+     * @return array|false
+     */
+    private function _composeOther($permission, $user, $creator)
+    {
+        $composite_perm = [];
+
         if (!is_null($creator)
             && strlen($user)
             && ($user === $creator)
             && (($perms = $permission->getCreatorPermissions()) !== null)) {
-            if ($type == 'matrix') {
-                $composite_perm |= $perms;
-            } else {
-                $composite_perm[] = $perms;
-            }
+            $composite_perm[] = $perms;
         }
 
-        // Check user-level permissions.
         $userperms = $permission->getUserPermissions();
         if (isset($userperms[$user])) {
-            if ($type == 'matrix') {
-                $composite_perm |= $userperms[$user];
-            } else {
-                $composite_perm[] = $userperms[$user];
-            }
+            $composite_perm[] = $userperms[$user];
         }
 
-        // If no user permissions are found, try group permissions.
         if (isset($permission->data['groups'])
             && is_array($permission->data['groups'])
             && count($permission->data['groups'])) {
-            $groups = $GLOBALS['injector']
-                ->getInstance('Horde_Group')
-                ->listGroups($user);
-
+            $groups = $this->_getGroupsForUser($user);
             foreach ($permission->data['groups'] as $group => $perms) {
                 if (isset($groups[$group])) {
-                    if ($type == 'matrix') {
-                        $composite_perm |= $perms;
-                    } else {
-                        $composite_perm[] = $perms;
-                    }
+                    $composite_perm[] = $perms;
                 }
             }
         }
 
-        // If there are default permissions, return them.
         if (($perms = $permission->getDefaultPermissions()) !== null) {
-            if ($type == 'matrix') {
-                $composite_perm |= $perms;
-            } else {
-                $composite_perm[] = $perms;
+            $composite_perm[] = $perms;
+        }
+
+        // @todo collapse to plain "return $composite_perm" once the
+        //       return-type cleanup lands. Keep the false compat for now.
+        return $composite_perm ?: false;
+    }
+
+    /**
+     * Fetches the group memberships for a user.
+     *
+     * Three-tier fallback:
+     *   1. Group backend passed via the 'group' constructor param.
+     *   2. Legacy $GLOBALS['injector']->getInstance('Horde_Group') lookup.
+     *      Kept for compatibility with older instantiation sites.
+     *   3. An empty list, meaning "user has no groups". A missing group
+     *      backend must not deny the whole permission lookup. It just
+     *      means the group step of the cascade contributes nothing.
+     *
+     * @return array  Group id => group name hash. Empty when no backend
+     *                is reachable.
+     */
+    private function _getGroupsForUser($user)
+    {
+        $group = $this->_group;
+        if ($group === null && isset($GLOBALS['injector'])) {
+            try {
+                $group = $GLOBALS['injector']->getInstance('Horde_Group');
+            } catch (\Throwable $e) {
+                // Injector present but no Horde_Group binding. Treat as
+                // no groups. The empty return makes the group step of the
+                // cascade a no-op rather than blocking resolution.
+                return [];
             }
         }
-
-        // Return composed permissions.
-        if ($composite_perm) {
-            return $composite_perm;
+        if ($group === null) {
+            return [];
         }
-
-        // Otherwise, deny all permissions to the object.
-        return false;
+        try {
+            return $group->listGroups($user);
+        } catch (\Throwable $e) {
+            // Group backend blew up mid-lookup. Same policy as above:
+            // treat as no groups rather than fail the permission check.
+            return [];
+        }
     }
 
     /**

@@ -387,4 +387,231 @@ class PermissionTest extends TestCase
         // Cache version is protected, just verify no exception
         $this->assertInstanceOf(Horde_Perms_Permission::class, $perm);
     }
+
+    // ---------- Deny families ----------
+
+    public function testAddUserDenyStoresDeny(): void
+    {
+        $perm = new Horde_Perms_Permission('test');
+        $perm->addUserDeny('alice', Horde_Perms::READ, false);
+
+        $denies = $perm->getUserDenies();
+        $this->assertArrayHasKey('alice', $denies);
+        $this->assertEquals(Horde_Perms::READ, $denies['alice']);
+    }
+
+    public function testAddUserDenyAccumulatesInMatrixMode(): void
+    {
+        $perm = new Horde_Perms_Permission('test', null, 'matrix');
+        $perm->addUserDeny('alice', Horde_Perms::READ, false);
+        $perm->addUserDeny('alice', Horde_Perms::EDIT, false);
+
+        $denies = $perm->getUserDenies();
+        $this->assertEquals(Horde_Perms::READ | Horde_Perms::EDIT, $denies['alice']);
+    }
+
+    public function testAddUserDenyIgnoresEmptyUser(): void
+    {
+        $perm = new Horde_Perms_Permission('test');
+        $perm->addUserDeny('', Horde_Perms::READ, false);
+
+        $this->assertEmpty($perm->getUserDenies());
+    }
+
+    public function testAddGroupDenyStoresDeny(): void
+    {
+        $perm = new Horde_Perms_Permission('test');
+        $perm->addGroupDeny('sales', Horde_Perms::DELETE, false);
+
+        $denies = $perm->getGroupDenies();
+        $this->assertArrayHasKey('sales', $denies);
+        $this->assertEquals(Horde_Perms::DELETE, $denies['sales']);
+    }
+
+    public function testAddGroupDenyIgnoresEmptyGroup(): void
+    {
+        $perm = new Horde_Perms_Permission('test');
+        $perm->addGroupDeny('', Horde_Perms::READ, false);
+
+        $this->assertEmpty($perm->getGroupDenies());
+    }
+
+    public function testAddCreatorDenyStoresDeny(): void
+    {
+        $perm = new Horde_Perms_Permission('test');
+        $perm->addCreatorDeny(Horde_Perms::DELETE, false);
+
+        $this->assertEquals(Horde_Perms::DELETE, $perm->getCreatorDenies());
+    }
+
+    public function testAddDefaultDenyStoresDeny(): void
+    {
+        $perm = new Horde_Perms_Permission('test');
+        $perm->addDefaultDeny(Horde_Perms::EDIT, false);
+
+        $this->assertEquals(Horde_Perms::EDIT, $perm->getDefaultDenies());
+    }
+
+    public function testRemoveUserDenyClearsSpecificBit(): void
+    {
+        $perm = new Horde_Perms_Permission('test');
+        $perm->addUserDeny('alice', Horde_Perms::READ | Horde_Perms::EDIT, false);
+        $perm->removeUserDeny('alice', Horde_Perms::READ, false);
+
+        $denies = $perm->getUserDenies();
+        $this->assertEquals(Horde_Perms::EDIT, $denies['alice']);
+    }
+
+    public function testRemoveUserDenyDropsUserWhenMaskEmpty(): void
+    {
+        $perm = new Horde_Perms_Permission('test');
+        $perm->addUserDeny('alice', Horde_Perms::READ, false);
+        $perm->removeUserDeny('alice', Horde_Perms::READ, false);
+
+        $this->assertEmpty($perm->getUserDenies());
+    }
+
+    public function testRemoveDefaultDenyClearsScope(): void
+    {
+        $perm = new Horde_Perms_Permission('test');
+        $perm->addDefaultDeny(Horde_Perms::READ | Horde_Perms::EDIT, false);
+        $perm->removeDefaultDeny(Horde_Perms::READ, false);
+
+        $this->assertEquals(Horde_Perms::EDIT, $perm->getDefaultDenies());
+    }
+
+    public function testGetUserDeniesReturnsEmptyArrayWhenNoDenies(): void
+    {
+        $perm = new Horde_Perms_Permission('test');
+
+        $this->assertIsArray($perm->getUserDenies());
+        $this->assertEmpty($perm->getUserDenies());
+    }
+
+    public function testGetUserDeniesCanFilterByPermission(): void
+    {
+        $perm = new Horde_Perms_Permission('test');
+        $perm->addUserDeny('alice', Horde_Perms::READ, false);
+        $perm->addUserDeny('bob', Horde_Perms::EDIT, false);
+
+        $readDenies = $perm->getUserDenies(Horde_Perms::READ);
+
+        $this->assertCount(1, $readDenies);
+        $this->assertArrayHasKey('alice', $readDenies);
+        $this->assertArrayNotHasKey('bob', $readDenies);
+    }
+
+    public function testAddUserDenyOnBooleanTypeStoresValue(): void
+    {
+        $perm = new Horde_Perms_Permission('test', null, 'boolean');
+        $perm->addUserDeny('alice', true, false);
+
+        $this->assertSame(['alice' => true], $perm->getUserDenies());
+    }
+
+    public function testAddUserDenyRaisesLogicExceptionOnNonMatrixNonBoolean(): void
+    {
+        $perm = new Horde_Perms_Permission('test', null, 'int');
+
+        $this->expectException(\Horde\Exception\HordeLogicException::class);
+        $perm->addUserDeny('alice', 42, false);
+    }
+
+    public function testAddGroupDenyRaisesLogicExceptionOnNonMatrixNonBoolean(): void
+    {
+        $perm = new Horde_Perms_Permission('test', null, 'int');
+
+        $this->expectException(\Horde\Exception\HordeLogicException::class);
+        $perm->addGroupDeny('sales', 42, false);
+    }
+
+    public function testAddCreatorDenyRaisesLogicExceptionOnNonMatrixNonBoolean(): void
+    {
+        $perm = new Horde_Perms_Permission('test', null, 'int');
+
+        $this->expectException(\Horde\Exception\HordeLogicException::class);
+        $perm->addCreatorDeny(42, false);
+    }
+
+    public function testAddDefaultDenyRaisesLogicExceptionOnNonMatrixNonBoolean(): void
+    {
+        $perm = new Horde_Perms_Permission('test', null, 'int');
+
+        $this->expectException(\Horde\Exception\HordeLogicException::class);
+        $perm->addDefaultDeny(42, false);
+    }
+
+    public function testUpdatePermissionsAcceptsUDenyKey(): void
+    {
+        $perm = new Horde_Perms_Permission('test', null, 'matrix');
+        $perm->updatePermissions([
+            'u_deny' => [
+                'alice' => [Horde_Perms::READ => true],
+            ],
+        ]);
+
+        $this->assertEquals(
+            [Horde_Perms::READ => true],
+            [Horde_Perms::READ => (bool) ($perm->getUserDenies()['alice'] & Horde_Perms::READ)]
+        );
+        $this->assertEquals(Horde_Perms::READ, $perm->getUserDenies()['alice']);
+    }
+
+    public function testUpdatePermissionsAcceptsGDenyKey(): void
+    {
+        $perm = new Horde_Perms_Permission('test', null, 'matrix');
+        $perm->updatePermissions([
+            'g_deny' => [
+                'sales' => [Horde_Perms::DELETE => true],
+            ],
+        ]);
+
+        $this->assertEquals(Horde_Perms::DELETE, $perm->getGroupDenies()['sales']);
+    }
+
+    public function testUpdatePermissionsAcceptsDefaultDenyKey(): void
+    {
+        $perm = new Horde_Perms_Permission('test', null, 'matrix');
+        $perm->updatePermissions([
+            'default_deny' => [Horde_Perms::EDIT => true],
+        ]);
+
+        $this->assertEquals(Horde_Perms::EDIT, $perm->getDefaultDenies());
+    }
+
+    public function testUpdatePermissionsAcceptsCreatorDenyKey(): void
+    {
+        $perm = new Horde_Perms_Permission('test', null, 'matrix');
+        $perm->updatePermissions([
+            'creator_deny' => [Horde_Perms::DELETE => true],
+        ]);
+
+        $this->assertEquals(Horde_Perms::DELETE, $perm->getCreatorDenies());
+    }
+
+    public function testUpdatePermissionsDenyRaisesLogicExceptionOnNonMatrixNonBoolean(): void
+    {
+        $perm = new Horde_Perms_Permission('test', null, 'int');
+
+        $this->expectException(\Horde\Exception\HordeLogicException::class);
+        $perm->updatePermissions([
+            'default_deny' => 42,
+        ]);
+    }
+
+    public function testDenyDataSurvivesSerialization(): void
+    {
+        $perm = new Horde_Perms_Permission('test', null, 'matrix');
+        $perm->addUserDeny('alice', Horde_Perms::READ, false);
+        $perm->addGroupDeny('sales', Horde_Perms::DELETE, false);
+        $perm->addDefaultDeny(Horde_Perms::EDIT, false);
+        $perm->addCreatorDeny(Horde_Perms::SHOW, false);
+
+        $roundtripped = unserialize(serialize($perm));
+
+        $this->assertEquals(Horde_Perms::READ, $roundtripped->getUserDenies()['alice']);
+        $this->assertEquals(Horde_Perms::DELETE, $roundtripped->getGroupDenies()['sales']);
+        $this->assertEquals(Horde_Perms::EDIT, $roundtripped->getDefaultDenies());
+        $this->assertEquals(Horde_Perms::SHOW, $roundtripped->getCreatorDenies());
+    }
 }
