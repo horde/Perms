@@ -22,18 +22,18 @@
     "time": "2026-07-06",
     "repositories": [],
     "require": {
-        "horde/horde-installer-plugin": "^3 || ^2",
+        "horde/horde-installer-plugin": "dev-FRAMEWORK_6_0 || ^3 || ^2",
         "php": "^7.4 || ^8",
-        "horde/db": "^3",
-        "horde/exception": "^3",
-        "horde/group": "^3",
-        "horde/util": "^3",
-        "horde/translation": "^3",
+        "horde/db": "^3 || dev-FRAMEWORK_6_0",
+        "horde/exception": "^3 || dev-FRAMEWORK_6_0",
+        "horde/group": "^3 || dev-FRAMEWORK_6_0",
+        "horde/util": "^3 || dev-FRAMEWORK_6_0",
+        "horde/translation": "^3 || dev-FRAMEWORK_6_0",
         "psr/log": "^3"
     },
     "require-dev": {},
     "suggest": {
-        "horde/tree": "^3"
+        "horde/tree": "^3 || dev-FRAMEWORK_6_0"
     },
     "autoload": {
         "psr-0": {
@@ -48,6 +48,11 @@
     "config": {
         "allow-plugins": {
             "horde/horde-installer-plugin": true
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-FRAMEWORK_6_0": "3.x-dev"
         }
     }
 }

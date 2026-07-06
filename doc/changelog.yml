@@ -1,4 +1,14 @@
 ---
+3.1.0:
+  api: 3.1.0
+  state:
+    release: stable
+    api: stable
+  date: 2026-07-06
+  license:
+    identifier: LGPL-2.1-only
+    uri: https://spdx.org/licenses/LGPL-2.1-only.html
+  notes: "feat: Negative permissions for boolean and matrix permission types\nfix: Make GLOBALS access in Horde_Perms_Sql optional\nchore: refresh CI bootstrap"
 3.0.0:
   api: 3.0.0
   state:
