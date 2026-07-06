@@ -16,6 +16,13 @@
 class Horde_Perms_Sql extends Horde_Perms_Base
 {
     /**
+     * Builtin fallback cache lifetime, in seconds. Used when neither the
+     * constructor param nor $GLOBALS['conf']['cache']['default_lifetime']
+     * supplies a value.
+     */
+    public const DEFAULT_CACHE_LIFETIME = 3600;
+
+    /**
      * Configuration parameters.
      *
      * @var array
@@ -52,6 +59,10 @@ class Horde_Perms_Sql extends Horde_Perms_Base
      * 'db' - (Horde_Db_Adapter) [REQUIRED] The DB instance.
      * 'table' - (string) The name of the perms table.
      *           DEFAULT: 'horde_perms'
+     * 'cache_lifetime' - (integer) Lifetime, in seconds, for cached perm
+     *                    lookups. If omitted, falls back to
+     *                    $GLOBALS['conf']['cache']['default_lifetime'] and
+     *                    finally to self::DEFAULT_CACHE_LIFETIME.
      * </pre>
      *
      * @throws Horde_Perms_Exception
@@ -66,9 +77,33 @@ class Horde_Perms_Sql extends Horde_Perms_Base
 
         $this->_params = array_merge([
             'table' => 'horde_perms',
+            'cache_lifetime' => $this->_resolveCacheLifetime($params),
         ], $this->_params, $params);
 
         parent::__construct($params);
+    }
+
+    /**
+     * Resolves the cache lifetime using the documented three-tier fallback:
+     * constructor param, then $GLOBALS['conf']['cache']['default_lifetime'],
+     * then self::DEFAULT_CACHE_LIFETIME.
+     *
+     * Kept out of the constructor body so both call sites (and any future
+     * ones) share one resolution point rather than open-coding the fallback.
+     *
+     * @param array $params  The raw constructor params.
+     *
+     * @return int  Lifetime in seconds.
+     */
+    private function _resolveCacheLifetime(array $params)
+    {
+        if (isset($params['cache_lifetime'])) {
+            return (int) $params['cache_lifetime'];
+        }
+        if (isset($GLOBALS['conf']['cache']['default_lifetime'])) {
+            return (int) $GLOBALS['conf']['cache']['default_lifetime'];
+        }
+        return self::DEFAULT_CACHE_LIFETIME;
     }
 
     /**
@@ -102,7 +137,7 @@ class Horde_Perms_Sql extends Horde_Perms_Base
             return $this->_permsCache[$name];
         }
 
-        $perm = $this->_cache->get('perm_sql_' . $this->_cacheVersion . $name, $GLOBALS['conf']['cache']['default_lifetime']);
+        $perm = $this->_cache->get('perm_sql_' . $this->_cacheVersion . $name, $this->_params['cache_lifetime']);
         if (!empty($perm)) {
             $this->_permsCache[$name] = unserialize($perm);
         }
@@ -315,7 +350,7 @@ class Horde_Perms_Sql extends Horde_Perms_Base
     public function exists($permission)
     {
         $key = 'perm_sql_exists_' . $this->_cacheVersion . $permission;
-        $exists = $this->_cache->get($key, $GLOBALS['conf']['cache']['default_lifetime']);
+        $exists = $this->_cache->get($key, $this->_params['cache_lifetime']);
         if ($exists === false) {
             $query = 'SELECT COUNT(*) FROM ' . $this->_params['table']
                 . ' WHERE perm_name = ?';
